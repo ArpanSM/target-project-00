@@ -1,12 +1,12 @@
 [tool.poetry]
 name = "target-product-rag"
-version = "1.0.0"
+version = "1.0.1"
 description = "RAG system for Target product search using Elasticsearch and OpenAI Agents."
 authors = ["Arpan Mahapatra <arpanmahapatra1999@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "3.12"
+python = ">=3.8,<3.13"
 fastembed = "0.4.0"
 elasticsearch = "8.18.1"
 openai-agents = "0.0.14"
