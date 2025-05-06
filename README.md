@@ -58,3 +58,8 @@ curl -X POST "http://localhost:8000/search" \
 ## Configuration
 
 Edit `.env` file:
+
+
+## Miro Link
+
+Link: [Miro Board](https://miro.com/app/board/uXjVI57Q6Z8=/?share_link_id=773437379455)

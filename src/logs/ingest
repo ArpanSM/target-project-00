@@ -1,0 +1,21 @@
+Fetching 5 files: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5/5 [00:00<?, ?it/s]
+2025-05-06 20:44:07,781 - INFO - Embedding model initialized successfully.
+2025-05-06 20:44:07,781 - INFO - Connecting to Elasticsearch at https://bd5929bbb6e94c339488644e4bfa8bdd.us-east-1.aws.found.io:443
+2025-05-06 20:44:09,319 - INFO - HEAD https://bd5929bbb6e94c339488644e4bfa8bdd.us-east-1.aws.found.io:443/ [status:200 duration:1.294s]
+2025-05-06 20:44:09,319 - INFO - Connected to Elasticsearch successfully.
+2025-05-06 20:44:09,320 - INFO - Checking if index 'target_products_v2' exists...
+2025-05-06 20:44:09,655 - INFO - HEAD https://bd5929bbb6e94c339488644e4bfa8bdd.us-east-1.aws.found.io:443/target_products_v2 [status:200 duration:0.334s]
+2025-05-06 20:44:09,656 - WARNING - Index 'target_products_v2' already exists. Deleting.
+C:\Users\arpan\rethem-aws-repos\personal-projects\target-project-00\src\ingest.py:81: DeprecationWarning: Passing transport options in the API method is deprecated. Use 'Elasticsearch.options()' instead.
+  client.indices.delete(index=INDEX_NAME, ignore=[400, 404])
+2025-05-06 20:44:10,282 - INFO - DELETE https://bd5929bbb6e94c339488644e4bfa8bdd.us-east-1.aws.found.io:443/target_products_v2 [status:200 duration:0.450s]
+2025-05-06 20:44:10,282 - INFO - Creating index 'target_products_v2' with mapping.
+2025-05-06 20:44:10,690 - INFO - PUT https://bd5929bbb6e94c339488644e4bfa8bdd.us-east-1.aws.found.io:443/target_products_v2 [status:200 duration:0.407s]
+2025-05-06 20:44:10,691 - INFO - Index 'target_products_v2' created successfully.
+2025-05-06 20:44:10,691 - INFO - Starting data ingestion from ../data/filtered_products.jl
+C:\Users\arpan\rethem-aws-repos\personal-projects\target-project-00\src\ingest.py:140: DeprecationWarning: Passing transport options in the API method is deprecated. Use 'Elasticsearch.options()' instead.
+  for ok, action in helpers.streaming_bulk(
+2025-05-06 20:44:18,224 - INFO - PUT https://bd5929bbb6e94c339488644e4bfa8bdd.us-east-1.aws.found.io:443/_bulk [status:200 duration:2.298s]
+2025-05-06 20:44:18,555 - INFO - POST https://bd5929bbb6e94c339488644e4bfa8bdd.us-east-1.aws.found.io:443/target_products_v2/_refresh [status:200 duration:0.329s]
+2025-05-06 20:44:18,556 - INFO - Data ingestion complete. Indexed 50 documents.
+2025-05-06 20:44:18,556 - INFO - Ingestion script finished.
