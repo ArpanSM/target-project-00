@@ -1,0 +1,8 @@
+Query: Find baby products under $30
+Top_k: 3
+
+I found a baby product under $30:
+
+- The **Pampers Baby Wipes Model 500 (639314875799)** are priced at $21.50. These wipes come with a buy 2, get $10 Target GiftCard offer, earn 1% rewards with Target Circle, and are compatible with most leading accessories. They meet rigorous safety standards and are ASTM and JPMA safety certified.
+
+Other Pampers Baby Wipes available are above $30.

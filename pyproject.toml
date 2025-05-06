@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "target-product-rag"
+version = "1.0.0"
+description = "RAG system for Target product search using Elasticsearch and OpenAI Agents."
+authors = ["Arpan Mahapatra <arpanmahapatra1999@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "3.12"
+fastembed = "0.4.0"
+elasticsearch = "8.18.1"
+openai-agents = "0.0.14"
+fastapi = "0.115.9"
+uvicorn = "0.34.0"
+pydantic = "2.7.1"
+langsmith = "0.3.42"
+pytest = "8.3.4"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api" 

@@ -1,0 +1,17 @@
+Query: What new products arrived after April 2024?
+Top_k: 3
+
+Here are some new products that arrived after April 2024:
+
+- **Pampers Diapers Model 304 (284440120605)** priced at $32.54, meeting rigorous safety standards for families.
+- **Pampers Diapers Model 784 (365572816452)** priced at $84.89, available with a buy 2, get $10 Target GiftCard offer.
+- **Pampers Diapers Model 812 (111943306257)** priced at $51.28, meeting ASTM and JPMA safety standards.
+- **LEGO Toy Model 400 (186993176673)** for $14.94, certified for safety by ASTM and JPMA.
+- **Pampers Baby Wipes Model 500 (639314875799)** priced at $21.50, compatible with most leading accessories.
+- **Quaker Cereal Model 998 (270090022806)** priced at $77.17.
+- **Seventh Generation Laundry Detergent Model 697 (710574977449)** priced at $63.87.
+- **Huggies Diapers Model 472 (952424777289)** for $59.66, meeting ASTM and JPMA safety standards.
+- **Pampers Baby Wipes Model 419 (172605644538)** priced at $66.48, with safety certifications.
+- **Chicco Car Seat Model 819 (774215389117)** priced at $33.37, meeting car seat safety certifications.
+
+These products all have recent updates after April 2024.

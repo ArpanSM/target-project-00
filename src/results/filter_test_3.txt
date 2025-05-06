@@ -1,0 +1,10 @@
+Query: List diapers over $50
+Top_k: 3
+
+I found several diaper options priced over $50:
+
+- The **Pampers Diapers Model 784 (365572816452)** is priced at $84.89. It comes with a buy 2, get $10 Target GiftCard offer and meets rigorous safety standards for families.
+- The **Pampers Diapers Model 565 (663382251608)** costs $53.11. It also has the buy 2, get $10 Target GiftCard offer and meets safety standards.
+- The **Pampers Diapers Model 812 (111943306257)** is available for $51.28 and meets ASTM and JPMA safety standards.
+
+All options offer Same Day Delivery and Drive Up services.
