@@ -17,6 +17,7 @@ fastapi = "0.115.9"
 uvicorn = "0.34.0"
 langsmith = "0.3.42"
 pytest = "8.3.4"
+python-dotenv = "1.0.1"
 
 [build-system]
 requires = ["poetry-core"]
