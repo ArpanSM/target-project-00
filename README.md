@@ -36,9 +36,7 @@ poetry run uvicorn src.api:app --reload
 
 **Search via API**:
 ```bash
-curl -X POST "http://localhost:8000/search" \
--H "Content-Type: application/json" \
--d '{"query": "Find diapers under $50 updated this month"}'
+curl -X POST "http://localhost:8000/search" -H "Content-Type: application/json" -d '{"query": "Find diapers under $50 updated this month"}'
 ```
 
 **Example Response**:
