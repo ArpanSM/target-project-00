@@ -78,3 +78,4 @@ def test_answer_user_query_api():
     logging.info(f"Results: {results}")
     assert results is not None
 
+# python -m pytest test/test_rag.py -v
