@@ -6,13 +6,14 @@ authors = ["Arpan Mahapatra <arpanmahapatra1999@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.8,<3.13"
+python = ">=3.10,<3.13"
+litellm = ">=1.50.0,<=1.68.0"
+pydantic = ">=2.0.0,<=2.10.6"
 fastembed = "0.4.0"
 elasticsearch = "8.18.1"
-openai-agents = "0.0.14"
+openai-agents = ">=0.0.10,<=0.0.14"
 fastapi = "0.115.9"
 uvicorn = "0.34.0"
-pydantic = "2.7.1"
 langsmith = "0.3.42"
 pytest = "8.3.4"
 
