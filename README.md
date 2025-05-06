@@ -69,7 +69,7 @@ Link: [Miro Board](https://miro.com/app/board/uXjVI57Q6Z8=/?share_link_id=773437
 Run the pytest suite:
 
 ```bash
-python -m pytest test/test_rag.py -v
+poetry run python -m pytest test/test_rag.py -v
 ```
 
 ## Project Decisions
