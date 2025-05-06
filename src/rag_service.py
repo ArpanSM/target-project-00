@@ -324,6 +324,20 @@ async def answer_user_query_api(user_query: str, top_k: int = 3):
         KNN_K = original_knn_k
         # ------------------------
 
+
+def pytest_rag_service(query: str):
+    """
+    This function is used to test the rag_service.py file.
+    It runs the product_agent in a synchronous manner with the given query and top_k setting.
+
+    Args:
+        query: The natural language query from the user.
+        top_k: The desired number of results to retrieve (affects KNN search).
+    """
+    result = Runner.run_sync(product_agent, query)
+    logging.info(f"Agent finished successfully for query: '{query}'")
+    return result
+
 # --- Main Execution Block (for local testing) ---
 async def main():
     if not OPENAI_API_KEY:
