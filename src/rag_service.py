@@ -85,7 +85,7 @@ metadata_fields_description = {
     "category": "Product category Ex. Diapers, Baby Wipes, Car Seats, etc.",
     "upc": "Universal Product Code Ex. 123456789012",
     "price": "Current price in USD Ex. 60, 42.99, 12.99, etc.",
-    "last_updated": "Date of last price update Ex. 2025-05-05"
+    "last_updated": "Date of last price update Ex. 2025-05-05 (YYYY-MM-DD)"
 }
 
 class VectorMetadataSearchInput(BaseModel):
@@ -293,24 +293,14 @@ async def answer_user_query_api(user_query: str, top_k: int = 3):
     """
     logging.info(f"Answering API query: '{user_query}' with top_k={top_k}")
 
-    # --- IMPORTANT CAVEAT ---
-    # Modifying KNN_K globally like this is NOT thread-safe if the API handles
-    # concurrent requests. In a production scenario, top_k should ideally be
-    # passed down through the agent execution context or state to the tools,
-    # or the tools themselves should be modified to accept top_k.
-    # For this example, we'll modify the global KNN_K used by the tools.
     global KNN_K
     original_knn_k = KNN_K
     KNN_K = top_k
-    # ------------------------
 
     try:
         result = await Runner.run(
             product_agent,
-            user_query,
-            # Config is usually for things like user_id, session_id, not direct tool params easily.
-            # We modified the global KNN_K above as a simplification for this example.
-            # config={"top_k": top_k}
+            user_query
         )
         logging.info(f"Agent finished successfully for query: '{user_query}'")
         return result
@@ -319,11 +309,8 @@ async def answer_user_query_api(user_query: str, top_k: int = 3):
         # Re-raise the exception so the API layer can handle it (e.g., return 500)
         raise
     finally:
-        # --- IMPORTANT CAVEAT ---
         # Reset KNN_K to its original value after the request.
         KNN_K = original_knn_k
-        # ------------------------
-
 
 def pytest_rag_service(query: str):
     """
