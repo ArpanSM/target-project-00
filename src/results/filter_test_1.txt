@@ -1,8 +1,9 @@
-Query: Find baby products under $30
-Top_k: 3
+Query: Find Pampers wipes
+Top_k: 2
 
-I found a baby product under $30:
+Here are some Pampers baby wipes available:
 
-- The **Pampers Baby Wipes Model 500 (639314875799)** are priced at $21.50. These wipes come with a buy 2, get $10 Target GiftCard offer, earn 1% rewards with Target Circle, and are compatible with most leading accessories. They meet rigorous safety standards and are ASTM and JPMA safety certified.
+- The Pampers Baby Wipes Model 715 (035089125223) are available for $72.65. These wipes meet rigorous safety standards and have ASTM and JPMA safety certifications.
+- The Pampers Baby Wipes Model 959 (639116887328) are priced at $19.35 and also meet ASTM and JPMA safety certifications.
 
-Other Pampers Baby Wipes available are above $30.
+Let me know if you need more details on any of these options!

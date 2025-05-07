@@ -1,10 +1,8 @@
 Query: Show Samsung TVs over $50 updated in Q2 2025
 Top_k: 3
 
-I found a Samsung TV over $50 updated in Q2 2025:
+Here are Samsung TVs over $50 that were updated in Q2 2025:
 
-- The **Samsung Television Model 686 (583943046514)** is priced at $58.45. It offers same-day delivery, works with most leading accessories, meets rigorous safety standards for families, and has a promotion where you can buy 2 and get a $10 Target GiftCard.
+- The **Samsung Television Model 686 (583943046514)** is priced at $58.45. It features same-day delivery and Drive Up service, works with most leading accessories, meets rigorous safety standards for families, and includes a promotion to buy 2 and get a $10 Target GiftCard.
 
-Other Samsung TVs found were either priced below $50 or do not match the price criteria.
-
-Let me know if you want more details or other options!
+Other Samsung TVs updated in Q2 2025 are either below $50 or do not meet the price criterion.

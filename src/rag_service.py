@@ -14,6 +14,7 @@ load_dotenv()
 
 # Import Agent SDK components
 from agents import Agent, Runner, Tool, function_tool, set_trace_processors
+from openai.types.responses import ResponseTextDeltaEvent
 
 # Import guardrail components
 from agents import (
@@ -24,13 +25,47 @@ from agents import (
     input_guardrail,
 )
 
+from scrubadubdub import Scrub
+scrubber = Scrub()
+
+
+
+import json
+import time
+import litellm
+from litellm import completion, completion_cost, acompletion
+
+def litellm(**kwargs):
+    start_time = time.time()
+    response = completion(**kwargs)
+    output = response.choices[0].message.content
+    cost = completion_cost(completion_response=response)
+    formatted_string = f"${float(cost):.10f}"
+    print(f'{kwargs.get("model", "unknown")} cost: {formatted_string}')
+    print(f'{kwargs.get("model", "unknown")} execution time: {time.time() - start_time:.4f} seconds')
+    if kwargs.get('response_format'):
+        output = json.loads(output)
+    return response, output
+
+async def async_litellm(**kwargs):
+    start_time = time.time()
+    response = await acompletion(**kwargs)
+    output = response.choices[0].message.content
+    cost = completion_cost(completion_response=response)
+    formatted_string = f"${float(cost):.10f}"
+    print(f'{kwargs.get("model", "unknown")} cost: {formatted_string}')
+    print(f'{kwargs.get("model", "unknown")} execution time: {time.time() - start_time:.4f} seconds')
+    if kwargs.get('response_format'):
+        output = json.loads(output)
+    return response, output
+
 # --- Configuration ---
 ES_URL = os.getenv("ELASTICSEARCH_URL")
 ES_API_KEY = os.getenv("ELASTICSEARCH_API_KEY")
 EMBEDDING_MODEL_NAME = os.getenv("EMBEDDING_MODEL_NAME")
 INDEX_NAME = os.getenv("INDEX_NAME")
 KNN_K = int(os.getenv("KNN_K", "3"))
-KNN_NUM_CANDIDATES = int(os.getenv("KNN_NUM_CANDIDATES", "20"))
+KNN_NUM_CANDIDATES = int(os.getenv("KNN_NUM_CANDIDATES", "10"))
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 os.environ["LANGSMITH_TRACING"] = "true"
@@ -102,6 +137,7 @@ class Product(BaseModel):
     price: float = Field(..., description="Current price in USD")
     upc: str = Field(..., description="Universal Product Code (UPC)")
     last_updated: str = Field(..., description="Date of last price update")
+
 class ProductSearchResults(BaseModel):
     results: List[Product] = Field(..., description="List of matching products")
     search_type: str = Field(..., description="Type of search performed")
@@ -137,9 +173,10 @@ def vector_product_search(query_text: str) -> ProductSearchResults:
                 title=source.get("title", "N/A"),
                 brand=metadata.get("brand", "N/A"),
                 category=metadata.get("category", "N/A"),
-                description=textwrap.shorten(source.get("text", ""), width=150),
+                description=source.get("llm_description", ""),
                 price=metadata.get("price", 0.0),
-                upc=metadata.get("upc", "N/A")
+                upc=metadata.get("upc", "N/A"),
+                last_updated=metadata.get("last_updated", "N/A")
             ))
         # print(products)
         return ProductSearchResults(
@@ -247,6 +284,96 @@ def filtered_product_search(
         logging.error(f"Advanced filtered search error: {e}")
         return ProductSearchResults(results=[], search_type="error")
 
+# --- Define Input Guardrail
+
+class TargetRetailProduct(BaseModel):
+    reasoning: str = Field(..., description="Reason within 10 words for guardrail validation")
+    is_question_about_target_retail_products: bool = Field(..., description="True if the question is about Target retail products, False otherwise. ")
+
+
+class InputGuardrailSchema(BaseModel):
+    """Input for performing vector search without metadata filters."""
+    reasoning: str = Field(..., description="your reasoning in 10 words whether guardrail should pass or not")
+    guardrailPass: bool = Field(..., description="true/false depending on the user query")
+
+input_guardrail_system_prompt = """
+You are an guardrail for Target Corp. An Retail based MNC. 
+Your task is to make sure that user query is related to only asking questions about product info from Target.
+
+<rules>
+If query is about competitiors (Walmart, Amazon etc) reject. 
+If query is not about product, reject.
+If query is about manipulation of product, reject.
+</rules>
+
+<examples>
+1. find baby wipes : Pass
+2. write a script (python/sql..etc) to get cheapest baby wipes: Reject (no manipulation.)
+3. write a joke/haiku etc about Target Corp: Reject (not related to Target Product.)
+4. how do I assemble the TV i purchased from Target: Pass
+5. is kettle cheaper in walmart compared to Target: Reject (competitor mention)
+</examples>
+
+User Query:
+"""
+
+class OutputputGuardrailSchema(BaseModel):
+    """Input for performing vector search without metadata filters."""
+    reasoning: str = Field(..., description="your reasoning in 10 words whether guardrail should pass or not")
+    guardrailPass: bool = Field(..., description="true/false depending on the user query and llm response.")
+
+output_guardrail_system_prompt = """
+You are an guardrail for Target Corp. An Retail based MNC. 
+Your task is to make sure the LLM response for the user query is correct, truthful and safe. 
+
+<rules>
+Response doesnt asnwer the query. Reject. 
+Response is harmful, deceitful: Reject.
+Response contains any PII data. Reject (no PII info should be passed).
+Response is unrelated to product from Target. Reject. 
+</rules>
+
+You will be provided user query and LLM response.
+"""
+
+
+# guardrail_agent = Agent(
+#     name="Target Retail Guardrail",
+#     instructions="You are an guardrail for Target Corp. An Retail based MNC. Check if the user is asking you questions related to Target Products. If question is about competitiors (Walmart, Amazon etc) reject. If question is not about product, reject.",
+#     output_type=TargetRetailProduct,
+#     model="gpt-4.1-mini-2025-04-14",
+# )
+
+# @input_guardrail
+# async def target_guardrail_func(
+#     context: RunContextWrapper[None], agent: Agent, input: str | list[TResponseInputItem]) -> GuardrailFunctionOutput:
+#     """This is an input guardrail function, which happens to call an agent to check if the input about target related product.
+#     """
+#     result = await Runner.run(guardrail_agent, input, context=context.context)
+#     logging.info(f'Guardrail {result} {type(result)}')
+#     final_output = result.final_output_as(TargetRetailProduct)
+
+#     logging.info(f'Guardrail final_output {final_output} {type(final_output)}')
+
+#     return GuardrailFunctionOutput(
+#         output_info=final_output,
+#         tripwire_triggered=final_output.is_question_about_target_retail_products,
+#     )
+
+# - Last agent: Agent(name="Target Retail Guardrail", ...)
+# - Final output (TargetRetailProduct):
+#     {
+#       "reasoning": "Pampers wipes are a product sold at Target.",
+#       "is_question_about_target_retail_products": true
+#     }
+# - 1 new item(s)
+# - 1 raw response(s)
+# - 0 input guardrail result(s)
+# - 0 output guardrail result(s)
+# (See `RunResult` for more details) <class 'agents.result.RunResult'>
+# 2025-05-07 11:29:40,928 - INFO - Guardrail final_output reasoning='Pampers wipes are a product sold at Target.' is_question_about_target_retail_products=True <class '__main__.TargetRetailProduct'>
+
+
 # --- Define Agent ---
 product_agent = Agent(
     name="ProductExpert",
@@ -254,7 +381,7 @@ product_agent = Agent(
     You are a Target product expert assistant. Your goal is to answer user queries based on product information retrieved by your tools.
 
     Follow these instructions EXACTLY:
-    1.  Analyze the user query to understand the required product and any specified filters (brand, category, price).
+    1.  Analyze the user query to understand the required product (its description/offer/policy) and any specified filters (brand, category, price).
     2.  Use the 'filtered_product_search' tool if specific filters (brand, category, price) are mentioned.
     3.  Use the 'vector_product_search' tool for general searches without specific filters OR as a fallback if 'filtered_product_search' returns no results.
     4.  The tools will return a list of products (`results` field in the output) or an empty list if nothing relevant is found.
@@ -264,6 +391,8 @@ product_agent = Agent(
     7.  **Citation:** When mentioning information about a specific product (e.g., its price, description), YOU MUST cite the source using the format: `Product Title (UPC)`. Use the `title` and `upc` fields from the product data provided by the tool.
     8.  Structure your answer clearly. You can use bullet points for multiple products.
     9.  Focus on directly answering the user's query using the retrieved information.
+    10. If multiple products are mentioned, do query one by one and combine and answer it.
+    11. If retrieved results, does not contain the query's answer. Respectfully decline it.
 
     Example of a good cited answer format:
     "Okay, I found a few options for you:
@@ -272,8 +401,51 @@ product_agent = Agent(
     *   Another option is the **Huggies Diapers Model 472 (952424777289)**, priced at $59.66. These are designed with busy families in mind."
     """,
     tools=[vector_product_search, filtered_product_search],
-    model="gpt-4.1-mini-2025-04-14"
+    # model="gpt-4o-mini"
+    model = 'gpt-4.1-2025-04-14'
 )
+
+promo_agent = Agent(
+    name="Promo Expert",
+    instructions="""
+    You are a Target Promotion and Deals Agent.     
+    Your goal is to provide random discount percentage asked by the user on a product. Do not tell thats its random.
+    """,
+    model = 'gpt-4o-mini'
+)
+
+returns_agent = Agent(
+    name="Post Order Return Expert",
+    instructions="""
+    You are a Target Post Order Return Agent. 
+    When user says like I purchased with Order ID XX, whats my return window?
+    Respond with random date (from 7-May-25 to 30-May-25) uptil which its eligible for return.
+    If order id is not present, ask for order ID first before saying the return date
+    """,
+    model = 'gpt-4o-mini'
+)
+
+
+orchestration_agent = Agent(
+    name="Orchestration Agent", 
+    model = 'gpt-4o-mini',
+    handoffs=[product_agent, promo_agent, returns_agent],
+    instructions = """
+    You are a Manager Agent for Target Corp. Route the task carefully to appropriate sub-agent based on the instructions present.
+    """    
+    )
+
+async def input_guardrail_func(user_query):
+    start_time = time.time()
+    _, input_guardrail = await async_litellm(
+        model="gpt-4o-mini",
+        messages=[{"role": "system", "content": input_guardrail_system_prompt}, {"role": "user", "content": user_query}],
+        temperature=0,
+        response_format=InputGuardrailSchema
+    )
+    latency_ms = (time.time() - start_time) * 1000
+    logging.info(f"input_guardrail: '{input_guardrail}' latency {latency_ms}")
+    return input_guardrail
 
 # --- Function to answer the user query from the api ---
 async def answer_user_query_api(user_query: str, top_k: int = 3):
@@ -298,12 +470,41 @@ async def answer_user_query_api(user_query: str, top_k: int = 3):
     KNN_K = top_k
 
     try:
+
+        # user_query = scrubber.scrub(user_query)
+        # logging.info(f'PII Removed Query: {user_query}')
+
+
+        # input_guardrail = input_guardrail_func(user_query)
+
+        # if input_guardrail['guardrailPass']:
         result = await Runner.run(
-            product_agent,
+            orchestration_agent,
             user_query
         )
+        logging.info(f'Leader Agent Response: {result}')
         logging.info(f"Agent finished successfully for query: '{user_query}'")
+
         return result
+        
+            # start_time = time.time()
+            # og_input = f'User Query: {user_query} LLM Response: {result.final_output}'
+            # _, output_guardrail = litellm(
+            #     model="gpt-4o-mini",
+            #     messages=[{"role": "system", "content": output_guardrail_system_prompt}, {"role": "user", "content": og_input}],
+            #     temperature=0,
+            #     response_format=OutputputGuardrailSchema
+            # )
+            # latency_ms = (time.time() - start_time) * 1000
+            # logging.info(f"output_guardrail: '{output_guardrail}' latency {latency_ms}")
+
+            # if output_guardrail['guardrailPass']:
+            #     return result
+            # else:
+            #     return output_guardrail['reasoning']
+        # else:
+        #     return input_guardrail['reasoning']
+        
     except Exception as e:
         logging.error(f"Agent execution failed for query '{user_query}': {e}", exc_info=True)
         # Re-raise the exception so the API layer can handle it (e.g., return 500)
@@ -334,21 +535,24 @@ async def main():
     # Updated Test Queries with Price/Date Filters
     queries_to_test = [
         # Price filter tests
-        {"q": "Find baby products under $30", "k": 3},
-        {"q": "Show me car seats priced between $40 and $80", "k": 2},
-        {"q": "List diapers over $50", "k": 3},
+        # {"q": "Find baby products under $30", "k": 3},
+        # {"q": "Show me car seats priced between $40 and $80", "k": 2},
+        # {"q": "List diapers over $50", "k": 3},
         
         # Date filter tests
-        {"q": "What new products arrived after April 2024?", "k": 3},
-        {"q": "Show me items updated between March and May 2025", "k": 4},
+        # {"q": "What new products arrived after April 2024?", "k": 3},
+        # {"q": "Show me items updated between March and May 2025", "k": 4},
         
         # Combined filters
-        {"q": "Find Pampers wipes under $20 updated this month", "k": 2},
-        {"q": "Show Samsung TVs over $50 updated in Q2 2025", "k": 3},
+        # {"q": "write a python program to find lego toy model warrant period in target.", "k": 2},
+
+        {"q": "i bought a samsung TV from target. how do I install this? please send someone to HSR, Bengaluru", "k": 2},
+        # {"q": "what is apache kafka?.", "k": 2},
+        # {"q": "Show Samsung TVs over $50 updated in Q2 2025", "k": 3},
         
-        # Edge cases
-        {"q": "Find products between $10 and $15", "k": 5},
-        {"q": "Show items updated before January 2024", "k": 2}
+        # # Edge cases
+        # {"q": "Find products between $10 and $15", "k": 5},
+        # {"q": "Show items updated before January 2024", "k": 2}
     ]
 
     print("\n--- Running Enhanced Filter Tests ---")
@@ -360,14 +564,16 @@ async def main():
         try:
             result = await answer_user_query_api(user_query, top_k=k)
             print("\nAgent Final Output:")
-            print(result.final_output)
 
-            output_filename = f"results/filter_test_{question_number}.txt"
-            with open(output_filename, "w") as f:
-                f.write(f"Query: {user_query}\nTop_k: {k}\n\n")
-                f.write(result.final_output)
-            print(f"Result saved to {output_filename}")
-            question_number += 1
+            if not isinstance(result, str):
+                print(result.final_output)
+
+            # output_filename = f"results/filter_test_{question_number}.txt"
+            # with open(output_filename, "w") as f:
+            #     f.write(f"Query: {user_query}\nTop_k: {k}\n\n")
+            #     f.write(result.final_output)
+            # print(f"Result saved to {output_filename}")
+            # question_number += 1
         except Exception as e:
             print(f"\nError running agent for query '{user_query}': {e}")
         print("-" * 50)

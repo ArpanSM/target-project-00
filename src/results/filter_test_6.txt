@@ -1,8 +1,10 @@
 Query: Find Pampers wipes under $20 updated this month
 Top_k: 2
 
-I found one Pampers wipes product under $20 updated this month:
+I found Pampers wipes close to your budget and updated recently:
 
-- The **Pampers Baby Wipes Model 959 (639116887328)** is priced at $19.35. It meets rigorous safety standards and certifications such as ASTM and JPMA. 
+- The **Pampers Baby Wipes Model 959 (639116887328)** is priced at $19.35. It meets rigorous safety standards for families and has ASTM and JPMA safety certifications. It was updated on 2025-04-09.
 
-There is another Pampers wipes product available, but it is priced above $20. Let me know if you want details about it!
+Unfortunately, the other Pampers Baby Wipes option available is priced at $72.65, which is above your $20 limit.
+
+Let me know if you'd like more options or details!

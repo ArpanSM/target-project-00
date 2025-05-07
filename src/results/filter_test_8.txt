@@ -1,9 +1,7 @@
 Query: Find products between $10 and $15
 Top_k: 5
 
-I found a few products priced between $10 and $15:
+I found a couple of products priced between $10 and $15:
 
-- The **LEGO Toy Model 400 (186993176673)** is available for $14.94. It comes with safety certifications and offers rewards with Target Circle.
-- The **Quaker Cereal Model 434 (285151857746)** is priced at $11.27. It meets safety standards suitable for family use.
-
-Let me know if you want more information on these or other options!
+- The **LEGO Toy Model 400 (186993176673)** is available for $14.94. It is noted for meeting rigorous safety standards and is ASTM and JPMA certified for safety.
+- The **Quaker Cereal Model 434 (285151857746)** is priced at $11.27. This product meets safety standards for family use and is available with options like Same Day Delivery and Drive Up.
